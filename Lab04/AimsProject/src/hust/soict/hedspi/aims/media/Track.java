@@ -1,49 +1,35 @@
 package hust.soict.hedspi.aims.media;
 
-public class Track implements Playable  {
+public class Track implements Playable {
+    private String title;
+    private int length;
 
-	private String artist;
-	private int length;
-	private String title;
+    //constructor
+    public Track(String title, int length) {
+        this.title = title;
+        this.length = length;
+    }
 
-	public String getArtist() {
-		return artist;
-	}
+    public String getTitle() {
 
-	public int getLength() {
-		return length;
-	}
+        return title;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public int getLength() {
 
-	public Track() {
-		// TODO Auto-generated constructor stub
-	}
-	public Track(String title, int length) {
-		this.title = title;
-		this.length = length;
-	}
-	public Track(String title, int length, String artist) {
-		this.title = title;
-		this.length = length;
-		this.artist = artist;
-	}
-	@Override
-	public String toString() {
-		return "Track [title=" + getTitle() + ", artist=" + artist + ", length=" + length + "]";
-	}
+        return length;
+    }
 
-	public void play() {
-		System.out.println("Playing Track: " + title);
-		System.out.println("Track length: " + length);
-	}
-	public boolean equals(Object obj) {
-		if (obj instanceof Track) {
-			Track track = (Track) obj;
-			return track.title.equals(this.title) && track.length == this.length;
-		}
-		return false;
-	}
+    @Override
+    public void play() {
+        System.out.println("Playing DVD: " + this.getTitle());
+        System.out.println("DVD length: " + this.getLength());
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        Track track = (Track) obj;
+        return (getTitle().equals(track.getTitle())) && (this.length == ((Track) obj).length);
+    }
 }

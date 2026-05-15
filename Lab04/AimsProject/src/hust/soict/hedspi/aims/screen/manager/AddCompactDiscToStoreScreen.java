@@ -1,161 +1,165 @@
 package hust.soict.hedspi.aims.screen.manager;
 
 import hust.soict.hedspi.aims.media.CompactDisc;
+import hust.soict.hedspi.aims.media.DigitalVideoDisc;
 import hust.soict.hedspi.aims.media.Track;
 import hust.soict.hedspi.aims.store.Store;
-import hust.soict.hedspi.aims.cart.Cart;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+
+
 
 public class AddCompactDiscToStoreScreen extends AddItemToStoreScreen {
-    private static final long serialVersionUID = 1L;
+    public AddCompactDiscToStoreScreen(Store store) {
+        super(store,"Add CD");
+    }
 
-    private JTextField tfTitle;
-    private JTextField tfCategory;
-    private JTextField tfArtist;
-    private JTextField tfCost;
-    private JTextField tfTrackTitle;
-    private JTextField tfTrackLength;
-    private JTextArea tracksArea;
-    private ArrayList<Track> tracks = new ArrayList<>();
+    private class AddTracksToCompactDiscScreen extends AddItemToStoreScreen {
+        private CompactDisc cd;
+        private JLabel lblTrackNo;
+        private JTextField tfTitle;
+        private JTextField tfLength;
+        private int screenIndex;
+        private int numberOfTrack;
+        JButton button = new JButton("Add");
 
-    public AddCompactDiscToStoreScreen(Store store, Cart cart) {
-        super(store, cart);
+
+        @Override
+        protected JPanel createCenter() {
+            JPanel center = new JPanel();
+            center.setLayout(new GridLayout(3, 2, 2, 3));
+
+            center.add(new JLabel("Enter the title : "));
+            TextField tfTitle = new TextField(30);
+            center.add(tfTitle);
+
+            center.add(new JLabel("Enter the length : "));
+            TextField tfLength = new TextField(30);
+            center.add(tfLength);
+
+            center.add(new JPanel());
+            JButton button = new JButton("Add");
+            button.setPreferredSize(new Dimension(80, 30));
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            buttonPanel.add(button);
+
+            center.add(buttonPanel);
+
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String title = tfTitle.getText();
+                    int length = 0;
+
+                    try {
+                        length = Integer.parseInt(tfLength.getText());
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Độ dài track phải là một số!", "Lỗi đầu vào", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    Track track = new Track(title, length);
+
+                    if (screenIndex >= numberOfTrack) {
+                        JOptionPane.showMessageDialog(null, "CD đã đầy. Không thể thêm track mới.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                    } else {
+                        cd.addTrack(track);
+                        JOptionPane.showMessageDialog(null, "Đã thêm track '" + title + "' vào CD.", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                        reset();
+                    }
+                }
+            });
+
+            return center;
+        }
+
+        public AddTracksToCompactDiscScreen(Store store, CompactDisc cd, Integer numberOfTrack) {
+            super(store, "Add Tracks");
+            this.cd = cd;
+            this.screenIndex = 0;
+            this.numberOfTrack = numberOfTrack;
+        }
+
+        void reset() {
+            screenIndex++;
+            setVisible(true);
+        }
     }
 
     @Override
     protected JPanel createCenter() {
-        JPanel center = new JPanel(new BorderLayout());
+        JPanel center = new JPanel();
+        center.setLayout(new GridLayout(8,2,2,3));
 
-        // CD Info Panel
-        JPanel cdInfoPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        cdInfoPanel.setBorder(BorderFactory.createTitledBorder("CD Information"));
+        center.add(new JLabel("Enter the title : "));
+        TextField title = new TextField(30);
+        center.add(title);
 
-        cdInfoPanel.add(new JLabel("Title:"));
-        tfTitle = new JTextField(20);
-        cdInfoPanel.add(tfTitle);
+        center.add(new JLabel("Enter the category : "));
+        TextField category = new TextField(30);
+        center.add(category);
 
-        cdInfoPanel.add(new JLabel("Category:"));
-        tfCategory = new JTextField(20);
-        cdInfoPanel.add(tfCategory);
+        center.add(new JLabel("Enter the director : "));
+        TextField director = new TextField(30);
+        center.add(director);
 
-        cdInfoPanel.add(new JLabel("Artist:"));
-        tfArtist = new JTextField(20);
-        cdInfoPanel.add(tfArtist);
+        center.add(new JLabel("Enter the length : "));
+        TextField length = new TextField(30);
+        center.add(length);
 
-        cdInfoPanel.add(new JLabel("Cost:"));
-        tfCost = new JTextField(20);
-        cdInfoPanel.add(tfCost);
+        center.add(new JLabel("Enter the cost : "));
+        TextField cost = new TextField(30);
+        center.add(cost);
 
-        // Track Info Panel
-        JPanel trackPanel = new JPanel(new BorderLayout());
-        trackPanel.setBorder(BorderFactory.createTitledBorder("Track Information"));
+        center.add(new JLabel("Enter the artist : "));
+        TextField artist = new TextField(30);
+        center.add(artist);
 
-        JPanel trackInputPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        center.add(new JLabel("Enter the number of Track : "));
+        TextField numberOfTrack = new TextField(30);
+        center.add(numberOfTrack);
 
-        trackInputPanel.add(new JLabel("Track Title:"));
-        tfTrackTitle = new JTextField(20);
-        trackInputPanel.add(tfTrackTitle);
+        center.add(new JPanel());
 
-        trackInputPanel.add(new JLabel("Track Length:"));
-        tfTrackLength = new JTextField(20);
-        trackInputPanel.add(tfTrackLength);
 
-        JButton addTrackButton = new JButton("Add Track");
-        addTrackButton.addActionListener(new AddTrackButtonListener());
+        JButton button = new JButton("Add");
+        button.setPreferredSize(new Dimension(80, 30));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(button);
 
-        tracksArea = new JTextArea(10, 40);
-        tracksArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(tracksArea);
+        center.add(buttonPanel);
 
-        trackPanel.add(trackInputPanel, BorderLayout.NORTH);
-        trackPanel.add(addTrackButton, BorderLayout.CENTER);
-        trackPanel.add(scrollPane, BorderLayout.SOUTH);
 
-        // Button panel
-        JPanel buttonsPanel = new JPanel();
-        JButton addCDButton = new JButton("Add CD to Store");
-        addCDButton.addActionListener(new AddCDButtonListener());
-        buttonsPanel.add(addCDButton);
 
-        // Add panels to center
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(cdInfoPanel, BorderLayout.NORTH);
-        topPanel.add(trackPanel, BorderLayout.CENTER);
+        button.addActionListener(new ActionListener() {
 
-        center.add(topPanel, BorderLayout.CENTER);
-        center.add(buttonsPanel, BorderLayout.SOUTH);
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CompactDisc cd = new CompactDisc(title.getText(), category.getText(),
+                        director.getText(), Integer.parseInt(length.getText()), Float.parseFloat(cost.getText()), artist.getText());
+                store.addMedia(cd);
+                AddCompactDiscToStoreScreen.this.dispose();
+                AddTracksToCompactDiscScreen addTrackScreen = new AddTracksToCompactDiscScreen(store, cd, Integer.parseInt(numberOfTrack.getText()));
+                Container cp = new Container();
+                cp.add(createCenter(), BorderLayout.CENTER);
+                cp.revalidate();
+                director.setText("");
+                length.setText("");
+                title.setText("");
+                category.setText("");
+                cost.setText("");
+            }
+        });
 
         return center;
     }
+    public static void main(String[] args) {
+        Store store = new Store();
+        new AddCompactDiscToStoreScreen(store);
 
-    @Override
-    protected String getScreenTitle() {
-        return "Add CD to Store";
     }
 
-    private class AddTrackButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String title = tfTrackTitle.getText();
-
-            try {
-                int length = Integer.parseInt(tfTrackLength.getText());
-
-                Track track = new Track(title, length);
-                tracks.add(track);
-
-                tracksArea.append("Track: " + title + " - Length: " + length + "\n");
-
-                // Clear track input fields
-                tfTrackTitle.setText("");
-                tfTrackLength.setText("");
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Invalid track length. Please enter a number.");
-            }
-        }
-    }
-
-    private class AddCDButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String title = tfTitle.getText();
-            String category = tfCategory.getText();
-            String artist = tfArtist.getText();
-
-            try {
-                float cost = Float.parseFloat(tfCost.getText());
-
-                // Create new CD and add tracks
-                CompactDisc cd = new CompactDisc(title, category, cost, artist);
-
-                // Add all tracks to CD
-                for (Track track : tracks) {
-                    cd.addTrack(track);
-                }
-
-                // Add CD to store
-                store.addMedia(cd);
-
-                JOptionPane.showMessageDialog(null, "CD added successfully");
-
-                // Clear all fields
-                tfTitle.setText("");
-                tfCategory.setText("");
-                tfArtist.setText("");
-                tfCost.setText("");
-                tfTrackTitle.setText("");
-                tfTrackLength.setText("");
-                tracksArea.setText("");
-                tracks.clear();
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Invalid cost format. Please enter a number.");
-            }
-        }
-    }
 }

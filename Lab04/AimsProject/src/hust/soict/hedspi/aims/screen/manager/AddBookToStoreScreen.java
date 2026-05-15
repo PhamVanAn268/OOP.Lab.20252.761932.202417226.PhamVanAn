@@ -1,139 +1,65 @@
 package hust.soict.hedspi.aims.screen.manager;
 
 import hust.soict.hedspi.aims.media.Book;
+import hust.soict.hedspi.aims.media.DigitalVideoDisc;
 import hust.soict.hedspi.aims.store.Store;
-import hust.soict.hedspi.aims.cart.Cart;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
-public class AddBookToStoreScreen extends AddItemToStoreScreen {
-    private static final long serialVersionUID = 1L;
-
-    private JTextField tfTitle;
-    private JTextField tfCategory;
-    private JTextField tfCost;
-    private JTextField tfAuthor;
-    private JTextArea authorsArea;
-    private ArrayList<String> authors = new ArrayList<>();
-
-    public AddBookToStoreScreen(Store store, Cart cart) {
-        super(store, cart);
+public class AddBookToStoreScreen extends AddItemToStoreScreen{
+    public AddBookToStoreScreen(Store store) {
+        super(store, "Add Book");
     }
-
     @Override
     protected JPanel createCenter() {
-        JPanel center = new JPanel(new BorderLayout());
+        JPanel center = new JPanel();
+        center.setLayout(new GridLayout(4,2,2,2));
+        center.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Input fields panel
-        JPanel fieldsPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        center.add(new JLabel("Enter the title : "));
+        TextField title = new TextField(20);
+        center.add(title);
 
-        fieldsPanel.add(new JLabel("Title:"));
-        tfTitle = new JTextField(20);
-        fieldsPanel.add(tfTitle);
+        center.add(new JLabel("Enter the category : "));
+        TextField category = new TextField(20);
+        center.add(category);
 
-        fieldsPanel.add(new JLabel("Category:"));
-        tfCategory = new JTextField(20);
-        fieldsPanel.add(tfCategory);
-
-        fieldsPanel.add(new JLabel("Cost:"));
-        tfCost = new JTextField(20);
-        fieldsPanel.add(tfCost);
-
-        // Authors panel
-        JPanel authorsPanel = new JPanel(new BorderLayout());
-        authorsPanel.setBorder(BorderFactory.createTitledBorder("Authors"));
-
-        JPanel authorInputPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-        authorInputPanel.add(new JLabel("Author:"));
-        tfAuthor = new JTextField(20);
-        authorInputPanel.add(tfAuthor);
-
-        JButton addAuthorButton = new JButton("Add Author");
-        addAuthorButton.addActionListener(new AddAuthorButtonListener());
+        center.add(new JLabel("Enter the cost : "));
+        TextField cost = new TextField(20);
+        center.add(cost);
+        center.add(new JPanel());
 
 
-        authorsArea = new JTextArea(10, 40);
-        authorsArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(authorsArea);
+        JButton button = new JButton("Add");
+        button.setPreferredSize(new Dimension(80, 30));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(button);
 
-        authorsPanel.add(authorInputPanel, BorderLayout.NORTH);
-        authorsPanel.add(addAuthorButton, BorderLayout.CENTER);
-        authorsPanel.add(scrollPane, BorderLayout.SOUTH);
+        center.add(buttonPanel);
 
-        // Button panel
-        JPanel buttonsPanel = new JPanel();
-        JButton addBookButton = new JButton("Add Book");
-        addBookButton.addActionListener(new AddBookButtonListener());
-        buttonsPanel.add(addBookButton);
+        button.addActionListener(new ActionListener() {
 
-        // Assemble the center panel
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(fieldsPanel, BorderLayout.NORTH);
-        topPanel.add(authorsPanel, BorderLayout.CENTER);
-
-        center.add(topPanel, BorderLayout.CENTER);
-        center.add(buttonsPanel, BorderLayout.SOUTH);
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Book book = new Book(title.getText(), category.getText(), Float.parseFloat(cost.getText()));
+                store.addMedia(book);
+                Container cp = new Container();
+                cp.add(createCenter(), BorderLayout.CENTER);
+                cp.revalidate();
+                title.setText("");
+                category.setText("");
+                cost.setText("");
+            }
+        });
 
         return center;
     }
-
-    @Override
-    protected String getScreenTitle() {
-        return "Add Book to Store";
+    public static void main(String[] args) {
+        Store store = new Store();
+        new AddBookToStoreScreen(store);
     }
 
-    private class AddAuthorButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String author = tfAuthor.getText().trim();
-
-            if (!author.isEmpty()) {
-                authors.add(author);
-                authorsArea.append(author + "\n");
-                tfAuthor.setText("");
-            } else {
-                JOptionPane.showMessageDialog(null, "Please enter an author name");
-            }
-        }
-    }
-
-    private class AddBookButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String title = tfTitle.getText();
-            String category = tfCategory.getText();
-
-            try {
-                float cost = Float.parseFloat(tfCost.getText());
-
-                // Create new book
-                Book book = new Book(title, category, cost);
-
-                // Add all authors to book
-                for (String author : authors) {
-                    book.addAuthor(author);
-                }
-
-                // Add book to store
-                store.addMedia(book);
-
-                JOptionPane.showMessageDialog(null, "Book added successfully");
-
-                // Clear fields after adding
-                tfTitle.setText("");
-                tfCategory.setText("");
-                tfCost.setText("");
-                tfAuthor.setText("");
-                authorsArea.setText("");
-                authors.clear();
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Invalid cost format. Please enter a number.");
-            }
-        }
-    }
 }
